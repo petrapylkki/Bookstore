@@ -1,6 +1,7 @@
 package c2.Bookstore.web;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,10 +11,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import c2.Bookstore.domain.Book;
 import c2.Bookstore.domain.BookRepository;
-import c2.Bookstore.domain.Category;
 import c2.Bookstore.domain.CategoryRepository;
 
 @Controller
@@ -59,5 +60,16 @@ public class BookstoreController {
 	public String saveBook(@ModelAttribute Book book) {
 		bookRepository.save(book);
 		return "redirect:/booklist";
+	}
+	
+	//REST-metodi, jotka palauttaa JSON-muodossa kaikki listatut kirjat kirjaluokasta
+		@GetMapping(value="/books")
+		public @ResponseBody List<Book> bookListRest() {
+			return(List<Book>) bookRepository.findAll();
+		}
+	//REST-metodi, joka palauttaa kirjaluokasta id:n perusteella yhden kirjan
+	@GetMapping(value="/book/{id}")
+	public @ResponseBody Optional<Book> findBookRest(@PathVariable("id")Long id) {
+		return bookRepository.findById(id);
 	}
 }
