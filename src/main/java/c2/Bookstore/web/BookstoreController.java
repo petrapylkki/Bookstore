@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,11 +26,11 @@ public class BookstoreController {
 	@Autowired
 	CategoryRepository categoryRepo;
 	
-	@RequestMapping("*")
+	@RequestMapping("/")
 	public String frontPage() {
 		return "redirect:/booklist";
 	}
-	
+		
 	@GetMapping(value = "/booklist")
 	public String getBooks(Model model) {
 		List<Book> books =  (List<Book>) bookRepository.findAll();
@@ -38,6 +39,7 @@ public class BookstoreController {
 	}
 	
 	@GetMapping(value = "/deletebook/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public String deleteBook(@PathVariable("id") Long id) {
 		bookRepository.deleteById(id);
 		return "redirect:../booklist";
@@ -61,15 +63,20 @@ public class BookstoreController {
 		bookRepository.save(book);
 		return "redirect:/booklist";
 	}
-	
+
 	//REST-metodi, jotka palauttaa JSON-muodossa kaikki listatut kirjat kirjaluokasta
-		@GetMapping(value="/books")
-		public @ResponseBody List<Book> bookListRest() {
-			return(List<Book>) bookRepository.findAll();
-		}
+	@GetMapping(value="/books")
+	public @ResponseBody List<Book> bookListRest() {
+		return(List<Book>) bookRepository.findAll();
+	}
+	
 	//REST-metodi, joka palauttaa kirjaluokasta id:n perusteella yhden kirjan
 	@GetMapping(value="/book/{id}")
 	public @ResponseBody Optional<Book> findBookRest(@PathVariable("id")Long id) {
 		return bookRepository.findById(id);
 	}
+	@RequestMapping(value="/login")
+    public String login() {	
+        return "login";
+    }
 }
